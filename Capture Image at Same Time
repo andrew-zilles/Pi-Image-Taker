@@ -1,0 +1,76 @@
+#!/usr/bin/env python3
+import ephem
+import time
+import picamera
+import signal
+import sys
+import os
+
+# Function to capture an image
+def capture_image(output_path):
+    with picamera.PiCamera() as camera:
+        camera.resolution = (2592, 1944)  # Set the resolution according to your preference
+        camera.rotation = 180
+        time.sleep(2)  # Give the camera time to adjust to lighting conditions
+        camera.capture(output_path)
+
+# Function to generate image filename with incremental count
+def generate_filename(count):
+    return f"springbushes_{count:04d}.jpg"
+
+# Function to handle interrupt signal and exit gracefully
+def signal_handler(sig, frame):
+    print("Received interrupt signal. Stopping the script.")
+    sys.exit(0)
+
+# Register the signal handler for interrupt signal (Ctrl + C)
+signal.signal(signal.SIGINT, signal_handler)
+
+# Set the path to save images
+output_folder = "/media/azilles/USB DISK/OK Timelapse/"
+if not os.path.exists(output_folder):
+    os.makedirs(output_folder)
+
+# Observer location (latitude and longitude)
+latitude = '32.222569'  # Replace with actual latitude
+longitude = '-97.439476'  # Replace with actual longitude
+
+# Observer object
+observer = ephem.Observer()
+observer.lat = latitude
+observer.lon = longitude
+
+# Flag to track if an image has been captured for the day
+image_captured_today = False
+
+# Limit the script to run for one month
+days_to_run = 60
+days_run = 0
+
+# Main loop
+try:
+    count = 0  # Image count
+    while days_run < days_to_run:
+        # Calculate solar time for 40 minutes before sunset
+        observer.date = ephem.now()
+        sunset_time = observer.next_setting(ephem.Sun())
+        capture_time = ephem.Date(sunset_time) - ephem.minute * 50
+        
+        # Wait until capture time
+        while ephem.now() < capture_time:
+            time.sleep(60)  # Check every minute
+        
+        # Capture image only if an image has not been captured for the day
+        if not image_captured_today:
+            # Capture image
+            timestamp = time.strftime("%Y%m%d%H%M%S")
+            image_path = os.path.join(output_folder, generate_filename(count))
+            capture_image(image_path)
+            print(f"Image captured: {image_path}")
+            count += 1  # Increment image count
+            image_captured_today = True  # Set flag to indicate image captured for the day
+            days_run += 1  # Increment days run
+
+except KeyboardInterrupt:
+    print("Script interrupted. Stopping.")
+    sys.exit(0)
