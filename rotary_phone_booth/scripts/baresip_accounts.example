@@ -1,0 +1,13 @@
+# Copy to ~/.baresip/accounts (or your configured baresip_config_dir) and fill in
+# your SIP trunk provider's details. Any provider that can terminate calls to real
+# phone numbers works here (e.g. Telnyx, VoIP.ms, Flowroute) -- Google Fi itself does
+# not offer SIP trunking, but you don't need it to: your Fi number is just the number
+# you dial as the destination, same as calling it from any other phone.
+#
+# <sip:USERNAME@YOUR_PROVIDER_HOST>;auth_pass=YOUR_PASSWORD;outbound="sip:YOUR_PROVIDER_HOST"
+#
+# In baresip's config file, make sure these are set so calls use pulseaudio (required
+# by scripts/setup_pulse_routing.sh):
+#   audio_player          pulse,phone_out
+#   audio_source          pulse,<mic_source>
+#   audio_alert           pulse,phone_out

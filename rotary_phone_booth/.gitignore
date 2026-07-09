@@ -1,0 +1,6 @@
+config.local.yaml
+smtp.env
+recordings/
+*.wav
+venv/
+__pycache__/

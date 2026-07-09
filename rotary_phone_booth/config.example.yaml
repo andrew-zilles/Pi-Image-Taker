@@ -1,0 +1,39 @@
+# Copy this file to config.local.yaml and fill in the values marked CHANGE_ME.
+# config.local.yaml is gitignored -- never commit real credentials.
+
+gpio:
+  hookswitch_pin: 17       # BCM pin, opto-isolated input. Active (closed) = handset off-hook.
+  dial_pulse_pin: 27       # BCM pin, opto-isolated input on the dial's pulse (impulse) contacts.
+  dial_offnormal_pin: 22   # BCM pin, opto-isolated input on the dial's off-normal contacts.
+                           # Set to null if you didn't wire this; timing-based digit detection is used instead.
+
+dialing:
+  expected_number_length: 11   # e.g. 1 + 10-digit US number. Call is placed once this many digits are collected.
+  inter_digit_timeout_seconds: 3.0  # if no off-normal pin: also finalizes a digit after this much pulse silence.
+  abandon_timeout_seconds: 20.0     # reset to idle if dialing stalls this long with no digits at all.
+
+sip:
+  # baresip must already be configured (see scripts/baresip_accounts.example) with a working
+  # SIP trunk account that can terminate calls to real phone numbers.
+  baresip_config_dir: "/home/pi/.baresip"
+  destination_uri_template: "sip:{number}@your-sip-trunk-provider.example.com"
+
+audio:
+  mic_source: "alsa_input.usb-XXXX"     # `pactl list short sources` to find your USB sound card's name
+  speaker_sink: "alsa_output.usb-XXXX"  # `pactl list short sinks`
+  call_record_sink: "call_record"       # internal name, no need to change
+
+recording:
+  output_dir: "recordings"
+
+transcription:
+  model_size: "small.en"   # tiny.en / base.en / small.en -- bigger is more accurate but slower on a Pi
+  device: "cpu"
+  chunk_seconds: 6.0
+
+email:
+  recipient: "blacksmithbynight@gmail.com"
+  smtp_host: "smtp.gmail.com"
+  smtp_port: 587
+  smtp_user: "CHANGE_ME@gmail.com"
+  # SMTP app password is read from the SMTP_APP_PASSWORD environment variable, not from this file.
