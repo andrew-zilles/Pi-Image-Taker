@@ -1,0 +1,18 @@
+[Unit]
+Description=Rotary phone genealogy booth
+After=sound.target network-online.target pulseaudio.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/rotary_phone_booth
+# Create this file with `SMTP_APP_PASSWORD=xxxx` and `chmod 600` it -- do not put the
+# password directly in this unit file, since unit files are often world-readable.
+EnvironmentFile=/home/pi/rotary_phone_booth/smtp.env
+ExecStart=/home/pi/rotary_phone_booth/venv/bin/python main.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
